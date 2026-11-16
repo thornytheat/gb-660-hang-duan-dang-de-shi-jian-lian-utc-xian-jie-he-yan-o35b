@@ -14,6 +14,7 @@
 | M4 UTC 航链 | 换算航段并校验先后顺序 | POST /api/itineraries/build | `app/modules/m4_itinerary/builder.py` `app/modules/m4_itinerary/validate.py` | `tests/test_m4_itinerary.py` |
 | M5 衔接判定 | 核对航站楼换乘与等待 | POST /api/connections/check | `app/modules/m5_connections/rules.py` `app/modules/m5_connections/windows.py` | `tests/test_m5_connections.py` |
 | M6 批次导出 | 核对航段守恒并导出时刻 | POST /api/reconcile | `app/modules/m6_batches/compare.py` `app/modules/m6_batches/exporter.py` | `tests/test_m6_batches.py` |
+| M7 衔接规则中心 | 发布/撤销版本化 MCT，出票与改签按版本快照核验 | POST /api/mct/rules `POST /api/mct/tickets` `POST /api/mct/tickets/rebook` | `app/modules/m7_mct/rulebook.py` `app/modules/m7_mct/ticketing.py` `app/modules/m7_mct/rebook.py` | `tests/test_m7_mct.py` `tests/test_m7_mct_api.py` |
 
 ## 陷阱登记
 
@@ -29,6 +30,10 @@
 | TRAP-14 | 同航段时刻冲突 | 后写覆盖原计划 | 冲突版本进入隔离区 | `app/modules/m1_legs/parser.py` | `tests/test_m1_legs.py::test_conflicting_duplicate_detected` |
 | TRAP-23 | 衔接窗口端点 | 结束时刻被重复计入 | 使用半开区间 | `app/modules/m5_connections/windows.py` | `tests/test_m5_connections.py::test_half_open_window_excludes_end` |
 | TRAP-25 | 时区版本重叠 | 随机选中一版偏移 | 多个生效版本立即拒绝 | `app/modules/m2_airports/registry.py` | `tests/test_m2_airports.py::test_overlapping_timezone_versions_rejected` |
+| TRAP-31 | 新旧票口径串台 | 新规直接替换把旧票判废 | 规则版本不可变，票与连接凭据永久绑定出票时的 rule_id 与快照；回读不随后续发布/撤销改变 | `app/modules/m7_mct/ticketing.py` `app/modules/m7_mct/snapshot.py` | `tests/test_m7_mct.py::test_old_ticket_keeps_issuance_promise_after_rule_hike` |
+| TRAP-32 | 改签全量重验 | 未变连接被新规误伤 | 仅变动连接按当前 active 规则重验，未变连接保留原 rule_id/required_minutes/decision | `app/modules/m7_mct/rebook.py` | `tests/test_m7_mct.py::test_rebook_unchanged_connection_keeps_original_credential` |
+| TRAP-33 | 撤销规则被新购/改签误用 | 过期版本放过新票 | 撤销仅置 withdrawn 不删行；选规则只认 active，缺失或撤销抛 RULE_EXPIRED 整单回滚 | `app/modules/m7_mct/rulebook.py` | `tests/test_m7_mct.py::test_rebook_rejects_expired_rule_version` |
+| TRAP-34 | 落库中断产生半票 | 重试重复出票或票快照不一致 | BEGIN IMMEDIATE 单事务 + idempotency_key 唯一约束，提交前故障整体回滚，重试返回同一票号 | `app/modules/m7_mct/ticketing.py` `app/modules/m7_mct/store.py` | `tests/test_m7_mct.py::test_crash_before_commit_leaves_no_partial_ticket_and_retry_recovers` |
 
 ## 对账规则
 

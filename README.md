@@ -16,6 +16,7 @@ docker compose up --build
 - M4 UTC 航链：页面 /itineraries，接口 /api/itineraries/build
 - M5 衔接判定：页面 /connections，接口 /api/connections/check
 - M6 批次导出：页面 /batches，接口 /api/reconcile
+- M7 衔接规则中心：页面 /mct，接口 /api/mct/rules、/api/mct/tickets、/api/mct/tickets/rebook
 
 ## 运行规则
 

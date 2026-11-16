@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="kpis">
+  <div class="kpi"><b>规则版本</b><strong>3</strong><small>条</small></div>
+  <div class="kpi"><b>有效</b><strong>2</strong><small>条</small></div>
+  <div class="kpi"><b>已撤销</b><strong>1</strong><small>条</small></div>
+  <div class="kpi"><b>规则快照</b><strong>1</strong><small>版</small></div>
+</section>
+<div class="grid grid--split">
+  <section class="panel">
+    <div class="panel__head"><h2>MCT 规则台账</h2><span class="state state--ok">版本不可变</span></div>
+    <div class="panel__body panel__body--scroll">
+      <table class="ledger"><thead><tr><th>序号</th><th>规则键（机场|航站楼|生效日）</th><th>状态</th><th class="num">最短分钟</th></tr></thead>
+      <tbody>{% for row in rows %}<tr><td class="num">{{ loop.index }}</td><td>{{ row.key }}</td><td>{{ row.status }}</td><td class="num">{{ row.value }}</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </section>
+  <section class="panel panel--evidence">
+    <div class="panel__head"><h2>出票/改签凭据</h2><span class="panel__meta">逐连接留痕</span></div>
+    <div class="panel__body"><div class="evidence"><b>SNAP 整单绑定</b><span>RETRY 幂等</span><code>/api/mct/tickets</code></div><pre id="result">等待运行</pre></div>
+  </section>
+  <section class="panel panel--status">
+    <div class="panel__head"><h2>版本口径</h2><span class="panel__meta">3 条</span></div>
+    <div class="panel__body"><div class="bar"><i style="width:66%"></i></div><div class="legend"><span>新购按新规</span><span>旧票按出票承诺</span></div></div>
+  </section>
+</div>
+{% endblock %}
